@@ -1,0 +1,1 @@
+"./../licplate.exe" -video 001.avi -logfile ./log.txt -framepath ./frames -showon -kalmanoff

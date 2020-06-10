@@ -1,5 +1,5 @@
 
-RUSSIAN AUTO LICPLATE RECOGNITION
+Программа распознавания автономеров РФ статических изображений и видео.
 
 Видеоролики для отладки были получены при помощи https://github.com/vmrepo/vsearch_licplates
 
@@ -25,6 +25,8 @@ licplate.exe -video movie.avi -showon -logfile licplate.log -framepath ./frames
 -kalmanoff - отключение фильтра Калмана для позиций рамок номеров, по умолчанию - включён
 
 
+
+RUSSIAN AUTO LICPLATE RECOGNITION
 
 How build
 

@@ -5,6 +5,7 @@
 
 Для разметки обучения детектора использовался https://github.com/vmrepo/markup
 
+Обучение ОСR для выровненной и сегментированной плашки номера: https://github.com/vmrepo/ruslicplateocr
 
 пример команды распознания изображений:
 licplate.exe -rotateon -image pic1.jpg pic2.jpg -out out/pic1.jpg out/pic2.jpg

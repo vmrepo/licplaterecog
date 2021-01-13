@@ -24,13 +24,7 @@
     <ClInclude Include="targetver.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="markupplate.h">
-      <Filter>Заголовочные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="rectplate.h">
-      <Filter>Заголовочные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="matplate.h">
+    <ClInclude Include="recogplate.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
     <ClInclude Include="imageplate.h">
@@ -47,13 +41,7 @@
     <ClCompile Include="licplate.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
-    <ClCompile Include="markupplate.cpp">
-      <Filter>Файлы исходного кода</Filter>
-    </ClCompile>
-    <ClCompile Include="rectplate.cpp">
-      <Filter>Файлы исходного кода</Filter>
-    </ClCompile>
-    <ClCompile Include="matplate.cpp">
+    <ClCompile Include="recogplate.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
     <ClCompile Include="imageplate.cpp">

@@ -135,7 +135,7 @@ void VideoPlate::process(const string &videosource)
 	Mat frame;
 
 	vector<Mat> frames;
-	vector<vector<CandidatePlate> > vectcandidates;
+	int i = 0;
 
 	map<int, StatusPlate> status;
 
@@ -147,28 +147,28 @@ void VideoPlate::process(const string &videosource)
 	{
 		if (s_interpolation || framecount % framestep == 0)
 		{
-			vector<CandidatePlate> candidates;
-
 			if (!s_interpolation || framecount % frameskip == 0)
 			{
-				MatPlate::extract(frame, candidates);
+				RecogPlate::imageadd(i, frame);
 			}
 
 			Mat frame_;
 			frame.copyTo(frame_);
 			frames.push_back(frame_);
-			vectcandidates.push_back(candidates);
+			i++;
 
 			if (frames.size() == s_bufsize)
 			{
-				processbuffer(videosource, fps, 1 + framecount - vectcandidates.size(), framestep, frames, vectcandidates, status);
+				processbuffer(videosource, fps, 1 + framecount - i, framestep, frames, status);
+				i = 0;
 			}
 		}
 
 		framecount++;
 	}
 
-	processbuffer(videosource, fps, framecount - vectcandidates.size(), framestep, frames, vectcandidates, status);
+	processbuffer(videosource, fps, framecount - i, framestep, frames, status);
+	i = 0;
 
 	if (s_show)
 	{
@@ -191,9 +191,9 @@ void VideoPlate::process(const string &videosource)
 	log("frames: %zd\n", framecount);
 }
 
-void VideoPlate::processbuffer(const string &name, int fps, size_t start, size_t step, vector<Mat> &frames, vector<vector<CandidatePlate> > &vectcandidates, map<int, StatusPlate> &status)
+void VideoPlate::processbuffer(const string &name, int fps, size_t start, size_t step, vector<Mat> &frames, map<int, StatusPlate> &status)
 {
-	MatPlate::recog(vectcandidates);
+	RecogPlate::recog();
 
 	float framewidth = 0;
 	float frameheight = 0;
@@ -209,16 +209,18 @@ void VideoPlate::processbuffer(const string &name, int fps, size_t start, size_t
 	//цикл по кадрам
 	for (int i = 0; i < frames.size(); i++)
 	{
-		vector<CandidatePlate> &candidates = vectcandidates[i];
+		vector<FramePlate> candidates;
 		map<int, FramePlate> plates;
+
+		RecogPlate::getplates(i, candidates);
 
 		//цикл по обнаруженным номерам в кадре
 		//if (i % 5 == 0)//для отладки симулируем пропуски обнаружения номеров в кадре
 		for (int j = 0; j < candidates.size(); j++)
 		{
 			FramePlate plate;
-			plate.rect = boundingRect(candidates[j].inverse_transform_rect(candidates[j].rect));
-			plate.licplate = candidates[j].rectplate.licplate;
+			plate.rect = candidates[j].rect;
+			plate.licplate = candidates[j].licplate;
 
 			//ищем номер в предыдущих
 			int plateid = 0;
@@ -227,7 +229,7 @@ void VideoPlate::processbuffer(const string &name, int fps, size_t start, size_t
 				double iou = (double)((*it).second.lastrect & plate.rect).area() / (double)((*it).second.lastrect | plate.rect).area();
 				double dis = sqrt(pow(((*it).second.lastrect.x + (double)(*it).second.lastrect.width / 2 - plate.rect.x - (double)plate.rect.width / 2) / framewidth, 2)
 					+ pow(((*it).second.lastrect.y + (double)(*it).second.lastrect.height / 2 - plate.rect.y - (double)plate.rect.height / 2) / frameheight, 2));
-				if (RectPlate::editdistance((*it).second.lastlicplate, plate.licplate) < 4 /*&& iou > 0.01*/ && dis < 0.3)
+				if (RecogPlate::editdistance((*it).second.lastlicplate, plate.licplate) < 4 /*&& iou > 0.01*/ && dis < 0.3)
 				{
 					plateid = (*it).first;
 					break;
@@ -329,7 +331,7 @@ void VideoPlate::processbuffer(const string &name, int fps, size_t start, size_t
 			for (int j = 0; j < plates.size(); j++)
 			{
 				Scalar red = Scalar(0, 0, 255);
-				MarkupPlate::drawframe(frames[i], plates[j].rect, red, false);
+				rectangle(frames[i], plates[j].rect, red);
 				putText(frames[i], plates[j].licplate, plates[j].rect.tl(), FONT_HERSHEY_DUPLEX, 0.8, red);
 			}
 
@@ -348,7 +350,7 @@ void VideoPlate::processbuffer(const string &name, int fps, size_t start, size_t
 	}
 
 	frames.clear();
-	vectcandidates.clear();
+	RecogPlate::clear();
 }
 
 VideoPlate::VideoPlate()

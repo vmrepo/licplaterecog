@@ -6,7 +6,7 @@
 
 #include "opencv2/opencv.hpp"
 
-#include "matplate.h"
+#include "recogplate.h"
 
 using namespace std;
 using namespace cv;

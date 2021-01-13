@@ -6,7 +6,7 @@
 
 #include "opencv2/opencv.hpp"
 
-#include "matplate.h"
+#include "recogplate.h"
 
 using namespace std;
 using namespace cv;
@@ -75,19 +75,13 @@ struct StatusPlate
 	}
 };
 
-struct FramePlate
-{
-	Rect rect;
-	string licplate;
-};
-
 struct VideoPlate
 {
 	static string timecode(size_t framecount, int fps);
 	static void log(const char* format, ...);
 
 	static void process(const string &videosource);
-	static void processbuffer(const string &name, int fps, size_t start, size_t step, vector<Mat> &frames, vector<vector<CandidatePlate> > &vectcandidates, map<int, StatusPlate> &status);
+	static void processbuffer(const string &name, int fps, size_t start, size_t step, vector<Mat> &frames, map<int, StatusPlate> &status);
 
 	VideoPlate();
 	VideoPlate(const VideoPlate& videoplate);

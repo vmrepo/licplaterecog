@@ -44,7 +44,7 @@ enum Status
 	ExpectFramePath
 };
 
-#define UNINIT { MatPlate::uninit(); RectPlate::uninit(); MarkupPlate::uninit(); }
+#define UNINIT { RecogPlate::uninit(); }
 
 int main(int argc, char** argv)
 {
@@ -60,21 +60,7 @@ int main(int argc, char** argv)
 
 	free(path);
 
-	if (!MatPlate::init(pathself))
-	{
-		printf("Haar cascade file %s not found\n", HAARFILENAME);
-		UNINIT
-		return 0;
-	}
-
-	if (!RectPlate::init(pathself))
-	{
-		printf("Graph file %s not imported\n", GRAPHFILENAME);
-		UNINIT
-		return 0;
-	}
-
-	MarkupPlate::init();
+	RecogPlate::init(pathself);
 
 	vector<string> images;
 	vector<string> outs;
@@ -199,22 +185,6 @@ int main(int argc, char** argv)
 
 			status = ExpectAny;
 		}
-		else if (!strcasecmp(argv[i], "-rotateon"))
-		{
-			if (status == ExpectAny || (status == ExpectImage && images.size() != 0) || (status == ExpectOut && outs.size() != 0) || (status == ExpectVideo && video.size() != 0))
-			{
-				MatPlate::s_testrotation = true;
-				RectPlate::s_testskew = true;
-			}
-			else
-			{
-				printf("Bad parameter %s", argv[i]);
-				UNINIT
-				return 0;
-			}
-
-			status = ExpectAny;
-		}
 		else
 		{
 			switch (status)
@@ -295,12 +265,11 @@ int main(int argc, char** argv)
 
 	ImagePlate::process(images, outs);
 
-#ifndef PICLOG
 	if (video.size())
 	{
 		VideoPlate::process(video);
 	}
-#endif
+
 	UNINIT
 	return 0;
 }

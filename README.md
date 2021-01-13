@@ -11,7 +11,6 @@
 licplate.exe -rotateon -image pic1.jpg pic2.jpg -out out/pic1.jpg out/pic2.jpg
 
 -out - необязательный
--rotateon - необязательный, включение анализа поворотов, по-умолчанию - отключён (сильно замедляет)
 
 пример команды распознания видео:
 licplate.exe -video movie.avi -showon -logfile licplate.log -framepath ./frames

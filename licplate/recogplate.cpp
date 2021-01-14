@@ -5,63 +5,27 @@
 
 #include "recogplate.h"
 
-TF_Graph* s_graph = nullptr;
-
-void free_buffer( void* data, size_t length )
+Mat RecogPlate::prepare(InputArray img)
 {
-	free( data );
+	return DetectPlate::prepare(img);
 }
 
-bool RecogPlate::init(string &path)
+void RecogPlate::recog(const pair<vector<int>, vector<Mat> > &input, map<int, vector<FramePlate> > &output)
 {
-	//https://github.com/AmirulOm/tensorflow_capi_sample
-
-	string model = "yolov4-tiny-416/";
-
-	string saved_model_dir = path.size() ? path + "/" + model : model;
-
-	TF_Graph* Graph = TF_NewGraph();
-	TF_Status* Status = TF_NewStatus();
-
-	TF_SessionOptions* SessionOpts = TF_NewSessionOptions();
-	TF_Buffer* RunOpts = NULL;
-
-	const char* tags = "serve"; // default model serving tag; can change in future
-	int ntags = 1;
-
-	TF_Session* Session = TF_LoadSessionFromSavedModel( SessionOpts, RunOpts, saved_model_dir.c_str(), &tags, ntags, Graph, NULL, Status );
-	if( TF_GetCode( Status ) == TF_OK ) {
-		printf( "TF_LoadSessionFromSavedModel OK\n" );
-	} else {
-		printf( "%s", TF_Message( Status ) );
+	vector<vector<Rect> > rects;
+	DetectPlate::detect(input.second, rects);
+	output.clear();
+	for (int i = 0; i < input.first.size(); i++)
+	{
+		int id = input.first[i];
+		output[id] = vector<FramePlate>();
+		for (int j = 0; j < rects[i].size(); j++)
+		{
+			output[id].push_back( FramePlate() );
+			output[id][j].rect = rects[i][j];
+			output[id][j].licplate = "xxx";
+		}
 	}
-
-	return true;
-}
-
-void RecogPlate::uninit()
-{
-}
-
-void RecogPlate::imageadd(int id, const Mat &image)
-{
-}
-
-int RecogPlate::imagecount()
-{
-	return 0;
-}
-
-void RecogPlate::recog()
-{
-}
-
-void RecogPlate::getplates(int id, vector<FramePlate> &plates)
-{
-}
-
-void RecogPlate::clear()
-{
 }
 
 size_t RecogPlate::editdistance( const string& A, const string& B )

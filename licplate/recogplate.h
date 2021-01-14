@@ -5,7 +5,8 @@
 #include "stdio.h"
 
 #include "opencv2/opencv.hpp"
-#include "tensorflow/c/c_api.h"
+
+#include "detectplate.h"
 
 using namespace std;
 using namespace cv;
@@ -18,13 +19,8 @@ struct FramePlate
 
 struct RecogPlate
 {
-	static bool init(string &path);
-	static void uninit();
-	static void imageadd(int id, const Mat &image);
-	static int imagecount();
-	static void recog();
-	static void getplates(int id, vector<FramePlate> &plates);
-	static void clear();
+	static Mat prepare(InputArray img);
+	static void recog(const pair<vector<int>, vector<Mat> > &input, map<int, vector<FramePlate> > &output);
 	static size_t editdistance( const string& A, const string& B );
 
 	RecogPlate();

@@ -136,7 +136,7 @@ void VideoPlate::process(const string &videosource)
 
 	vector<Mat> frames;
 	int i = 0;
-
+	pair<vector<int>, vector<Mat> > input;
 	map<int, StatusPlate> status;
 
 	size_t framecount = 0;
@@ -149,7 +149,8 @@ void VideoPlate::process(const string &videosource)
 		{
 			if (!s_interpolation || framecount % frameskip == 0)
 			{
-				RecogPlate::imageadd(i, frame);
+				input.first.push_back(i);
+				input.second.push_back(RecogPlate::prepare(frame));
 			}
 
 			Mat frame_;
@@ -159,7 +160,7 @@ void VideoPlate::process(const string &videosource)
 
 			if (frames.size() == s_bufsize)
 			{
-				processbuffer(videosource, fps, 1 + framecount - i, framestep, frames, status);
+				processbuffer(videosource, fps, 1 + framecount - i, framestep, frames, input, status);
 				i = 0;
 			}
 		}
@@ -167,7 +168,7 @@ void VideoPlate::process(const string &videosource)
 		framecount++;
 	}
 
-	processbuffer(videosource, fps, framecount - i, framestep, frames, status);
+	processbuffer(videosource, fps, framecount - i, framestep, frames, input, status);
 	i = 0;
 
 	if (s_show)
@@ -191,9 +192,10 @@ void VideoPlate::process(const string &videosource)
 	log("frames: %zd\n", framecount);
 }
 
-void VideoPlate::processbuffer(const string &name, int fps, size_t start, size_t step, vector<Mat> &frames, map<int, StatusPlate> &status)
+void VideoPlate::processbuffer(const string &name, int fps, size_t start, size_t step, vector<Mat> &frames, pair<vector<int>, vector<Mat> > &input, map<int, StatusPlate> &status)
 {
-	RecogPlate::recog();
+	map<int, vector<FramePlate> > output;
+	RecogPlate::recog(input, output);
 
 	float framewidth = 0;
 	float frameheight = 0;
@@ -209,10 +211,8 @@ void VideoPlate::processbuffer(const string &name, int fps, size_t start, size_t
 	//цикл по кадрам
 	for (int i = 0; i < frames.size(); i++)
 	{
-		vector<FramePlate> candidates;
+		vector<FramePlate> &candidates = output[i];
 		map<int, FramePlate> plates;
-
-		RecogPlate::getplates(i, candidates);
 
 		//цикл по обнаруженным номерам в кадре
 		//if (i % 5 == 0)//для отладки симулируем пропуски обнаружения номеров в кадре
@@ -350,7 +350,8 @@ void VideoPlate::processbuffer(const string &name, int fps, size_t start, size_t
 	}
 
 	frames.clear();
-	RecogPlate::clear();
+	input.first.clear();
+	input.second.clear();
 }
 
 VideoPlate::VideoPlate()

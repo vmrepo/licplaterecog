@@ -16,6 +16,7 @@ void ImagePlate::process(const vector<string> &filenames, const vector<string> &
 {
 	vector<string> errors;
 	vector<Mat> images;
+	pair<vector<int>, vector<Mat> > input;
 
 	for (int i = 0; i < filenames.size(); i++)
 	{
@@ -31,14 +32,16 @@ void ImagePlate::process(const vector<string> &filenames, const vector<string> &
 		else
 		{
 			image = imread(filenames[i]);
-			RecogPlate::imageadd(i, image);
+			input.first.push_back(i);
+			input.second.push_back(RecogPlate::prepare(image));
 		}
 
 		errors.push_back(error);
 		images.push_back(image);
 	}
 
-	RecogPlate::recog();
+	map<int, vector<FramePlate> > output;
+	RecogPlate::recog(input, output);
 
 	for (int i = 0; i < filenames.size(); i++)
 	{
@@ -52,8 +55,7 @@ void ImagePlate::process(const vector<string> &filenames, const vector<string> &
 
 		printf("licplates:\n");
 
-		vector<FramePlate> plates;
-		RecogPlate::getplates(i, plates);
+		vector<FramePlate> &plates = output[i];
  
 		if (plates.size())
 		{
@@ -83,7 +85,8 @@ void ImagePlate::process(const vector<string> &filenames, const vector<string> &
 		printf("\n");
 	}
 
-	RecogPlate::clear();
+	input.first.clear();
+	input.second.clear();
 }
 
 ImagePlate::ImagePlate()

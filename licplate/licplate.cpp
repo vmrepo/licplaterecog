@@ -44,7 +44,7 @@ enum Status
 	ExpectFramePath
 };
 
-#define UNINIT { RecogPlate::uninit(); }
+#define UNINIT { DetectPlate::uninit(); }
 
 int main(int argc, char** argv)
 {
@@ -60,7 +60,12 @@ int main(int argc, char** argv)
 
 	free(path);
 
-	RecogPlate::init(pathself);
+	if (!DetectPlate::init(pathself))
+	{
+		printf("Detector model %s not found\n", DETECTMODELNAME);
+		UNINIT
+		return 0;
+	}
 
 	vector<string> images;
 	vector<string> outs;

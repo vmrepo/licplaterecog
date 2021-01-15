@@ -135,8 +135,10 @@ void VideoPlate::process(const string &videosource)
 	Mat frame;
 
 	vector<Mat> frames;
+	vector<Mat> recogs;
 	int i = 0;
-	pair<vector<int>, vector<Mat> > input;
+	int j = 0;
+	map<int, int> matches;
 	map<int, StatusPlate> status;
 
 	size_t framecount = 0;
@@ -149,8 +151,9 @@ void VideoPlate::process(const string &videosource)
 		{
 			if (!s_interpolation || framecount % frameskip == 0)
 			{
-				input.first.push_back(i);
-				input.second.push_back(RecogPlate::prepare(frame));
+				recogs.push_back(frame);
+				matches[i] = j;
+				j++;
 			}
 
 			Mat frame_;
@@ -160,16 +163,24 @@ void VideoPlate::process(const string &videosource)
 
 			if (frames.size() == s_bufsize)
 			{
-				processbuffer(videosource, fps, 1 + framecount - i, framestep, frames, input, status);
+				processbuffer(videosource, fps, 1 + framecount - i, framestep, frames, recogs, matches, status);
+				frames.clear();
+				recogs.clear();
 				i = 0;
+				j = 0;
+				matches.clear();
 			}
 		}
 
 		framecount++;
 	}
 
-	processbuffer(videosource, fps, framecount - i, framestep, frames, input, status);
+	processbuffer(videosource, fps, framecount - i, framestep, frames, recogs, matches, status);
+	frames.clear();
+	recogs.clear();
 	i = 0;
+	j = 0;
+	matches.clear();
 
 	if (s_show)
 	{
@@ -192,10 +203,10 @@ void VideoPlate::process(const string &videosource)
 	log("frames: %zd\n", framecount);
 }
 
-void VideoPlate::processbuffer(const string &name, int fps, size_t start, size_t step, vector<Mat> &frames, pair<vector<int>, vector<Mat> > &input, map<int, StatusPlate> &status)
+void VideoPlate::processbuffer(const string &name, int fps, size_t start, size_t step, const vector<Mat> &frames, const vector<Mat> &recogs, const map<int, int> &matches, map<int, StatusPlate> &status)
 {
-	map<int, vector<FramePlate> > output;
-	RecogPlate::recog(input, output);
+	vector<vector<FramePlate> > platesets;
+	RecogPlate::recog(recogs, platesets);
 
 	float framewidth = 0;
 	float frameheight = 0;
@@ -211,16 +222,14 @@ void VideoPlate::processbuffer(const string &name, int fps, size_t start, size_t
 	//цикл по кадрам
 	for (int i = 0; i < frames.size(); i++)
 	{
-		vector<FramePlate> &candidates = output[i];
+		vector<FramePlate> &candidates = platesets[matches.at(i)];
 		map<int, FramePlate> plates;
 
 		//цикл по обнаруженным номерам в кадре
 		//if (i % 5 == 0)//для отладки симулируем пропуски обнаружения номеров в кадре
 		for (int j = 0; j < candidates.size(); j++)
 		{
-			FramePlate plate;
-			plate.rect = candidates[j].rect;
-			plate.licplate = candidates[j].licplate;
+			FramePlate &plate = candidates[j];
 
 			//ищем номер в предыдущих
 			int plateid = 0;
@@ -348,10 +357,6 @@ void VideoPlate::processbuffer(const string &name, int fps, size_t start, size_t
 			time = chrono::high_resolution_clock::now();
 		}
 	}
-
-	frames.clear();
-	input.first.clear();
-	input.second.clear();
 }
 
 VideoPlate::VideoPlate()

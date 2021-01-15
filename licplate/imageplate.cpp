@@ -16,13 +16,10 @@ void ImagePlate::process(const vector<string> &filenames, const vector<string> &
 {
 	vector<string> errors;
 	vector<Mat> images;
-	pair<vector<int>, vector<Mat> > input;
 
 	for (int i = 0; i < filenames.size(); i++)
 	{
 		string error;
-		Mat image;
-
 		ifstream ifile(filenames[i].c_str());
 
 		if (!(bool)ifile)
@@ -31,17 +28,16 @@ void ImagePlate::process(const vector<string> &filenames, const vector<string> &
 		} 
 		else
 		{
-			image = imread(filenames[i]);
-			input.first.push_back(i);
-			input.second.push_back(RecogPlate::prepare(image));
+			images.push_back(imread(filenames[i]));
 		}
 
 		errors.push_back(error);
-		images.push_back(image);
 	}
 
-	map<int, vector<FramePlate> > output;
-	RecogPlate::recog(input, output);
+	vector<vector<FramePlate> > platesets;
+	RecogPlate::recog(images, platesets);
+
+	int k = 0;
 
 	for (int i = 0; i < filenames.size(); i++)
 	{
@@ -49,13 +45,14 @@ void ImagePlate::process(const vector<string> &filenames, const vector<string> &
 
 		if (errors[i].size())
 		{
-			printf("error: %s\n", errors[i].c_str());
+			printf("error: %s\n\n", errors[i].c_str());
 			continue;
 		}
 
 		printf("licplates:\n");
 
-		vector<FramePlate> &plates = output[i];
+		Mat &image = images[k];
+		vector<FramePlate> &plates = platesets[k];
  
 		if (plates.size())
 		{
@@ -72,7 +69,7 @@ void ImagePlate::process(const vector<string> &filenames, const vector<string> &
 		if (i < outnames.size())
 		{
 			Mat mat;
-			images[i].copyTo(mat);
+			image.copyTo(mat);
 			for (int j = 0; j < plates.size(); j++)
 			{
 				Scalar red = Scalar(0, 0, 255);
@@ -83,10 +80,9 @@ void ImagePlate::process(const vector<string> &filenames, const vector<string> &
 		}
 
 		printf("\n");
-	}
 
-	input.first.clear();
-	input.second.clear();
+		k++;
+	}
 }
 
 ImagePlate::ImagePlate()

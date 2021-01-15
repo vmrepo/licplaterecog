@@ -5,25 +5,21 @@
 
 #include "recogplate.h"
 
-Mat RecogPlate::prepare(InputArray img)
+void RecogPlate::recog(const vector<Mat> &imgs, vector<vector<FramePlate> > &platesets)
 {
-	return DetectPlate::prepare(img);
-}
+	platesets.clear();
 
-void RecogPlate::recog(const pair<vector<int>, vector<Mat> > &input, map<int, vector<FramePlate> > &output)
-{
-	vector<vector<Rect> > rects;
-	DetectPlate::detect(input.second, rects);
-	output.clear();
-	for (int i = 0; i < input.first.size(); i++)
+	for (int i = 0; i < imgs.size(); i++)
 	{
-		int id = input.first[i];
-		output[id] = vector<FramePlate>();
-		for (int j = 0; j < rects[i].size(); j++)
-		{
-			output[id].push_back( FramePlate() );
-			output[id][j].rect = rects[i][j];
-			output[id][j].licplate = "xxx";
+		platesets.push_back(vector<FramePlate>());
+		vector<FramePlate> &plates = platesets[i];
+
+		vector<Rect> rects;
+		DetectPlate::detect(imgs[i], rects);
+
+		for (int j = 0; j < rects.size(); j++)
+		{	
+			plates.push_back(FramePlate(rects[j], "xxx"));
 		}
 	}
 }

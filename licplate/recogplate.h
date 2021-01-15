@@ -15,12 +15,21 @@ struct FramePlate
 {
 	Rect rect;
 	string licplate;
+
+	FramePlate() {}
+	FramePlate(const Rect &rect_, const string &licplate_) : rect(rect_), licplate(licplate_) {}
+	FramePlate( const FramePlate& frameplate ) : rect( frameplate.rect ), licplate( frameplate.licplate ) {}
+	FramePlate& operator=( const FramePlate& frameplate )
+	{
+		rect = frameplate.rect;
+		licplate = frameplate.licplate;
+		return *this; 
+	}
 };
 
 struct RecogPlate
 {
-	static Mat prepare(InputArray img);
-	static void recog(const pair<vector<int>, vector<Mat> > &input, map<int, vector<FramePlate> > &output);
+	static void recog(const vector<Mat> &imgs, vector<vector<FramePlate> > &platesets);
 	static size_t editdistance( const string& A, const string& B );
 
 	RecogPlate();

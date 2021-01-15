@@ -62,7 +62,7 @@ int main(int argc, char** argv)
 
 	if (!DetectPlate::init(pathself))
 	{
-		printf("Detector model %s not found\n", DETECTMODELNAME);
+		printf("Detector model %s not loaded\n", DETECTMODELNAME);
 		UNINIT
 		return 0;
 	}

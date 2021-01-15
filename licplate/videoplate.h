@@ -81,7 +81,7 @@ struct VideoPlate
 	static void log(const char* format, ...);
 
 	static void process(const string &videosource);
-	static void processbuffer(const string &name, int fps, size_t start, size_t step, vector<Mat> &frames, pair<vector<int>, vector<Mat> > &input, map<int, StatusPlate> &status);
+	static void processbuffer(const string &name, int fps, size_t start, size_t step, const vector<Mat> &frames, const vector<Mat> &recogs, const map<int, int> &matches, map<int, StatusPlate> &status);
 
 	VideoPlate();
 	VideoPlate(const VideoPlate& videoplate);

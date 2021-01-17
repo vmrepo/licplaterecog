@@ -92,9 +92,9 @@ void DetectPlate::detect(const Mat &img, vector<Rect> &rects)
 	for (int i = 0; i < samples; i++)
 	{
 		Mat imgresized;
-		resize(img, imgresized, Size(width, height), 0, 0, INTER_CUBIC);
+		resize(img, imgresized, Size(width, height));
 		Mat imgf;
-		imgresized.convertTo(imgf, CV_32F, 1 / 255.0);
+		imgresized.convertTo(imgf, CV_32FC3, 1 / 255.f);
 		memcpy((uchar*)data + i * width * height * channels * sizeof(float), imgf.data, width * height * channels * sizeof(float));
 	}
 
@@ -111,39 +111,49 @@ void DetectPlate::detect(const Mat &img, vector<Rect> &rects)
 	int w = img.cols;
 	int h = img.rows;
 
-	vector<Rect> rects_;
+	//supression for thresholds for score and iou
+
+	vector<float> scores;
+
 	for(int i = 0; i < n; i++)
 	{
 		int s = 5 * i;
-		if (out[s + 4] < 0.8)
+
+		float score = out[s + 4];
+
+		if (score < 0.8)
 		{
 			continue;
 		}
-		rects_.push_back(Rect(
-			Point2i(int(out[s + 1] * w), int(out[s + 0] * h)),
-			Point2i(int(out[s + 3] * w), int(out[s + 2] * h))));
-	}
 
-	// reject boxes that have high iou with previous box
-	for (int i = 0; i < rects_.size(); i++)
-	{
+		Rect rect = Rect(
+			Point2i(int(out[s + 1] * w), int(out[s + 0] * h)),
+			Point2i(int(out[s + 3] * w), int(out[s + 2] * h)));
+
 		bool found = false;
-		for (int j = 0; j < rects.size(); j++)
+
+		for (int j = 0; j < rects.size(); j++) 
 		{
-			float iou = (float)(rects_[i] & rects[j]).area() / (rects_[i] | rects[j]).area();
+			float iou = (float)(rect & rects[j]).area() / (rect | rects[j]).area();
+
 			if (iou < 0.2) 
 			{
 				continue;
 			}
+
 			found = true;
-			if (rects_[i].area() > rects[j].area()) 
+
+			if (score > scores[j])
 			{
-				rects[j] = rects_[i];
+				rects[j] = rect;
+				scores[j] = score;
 			}
-		}		
+		}
+
 		if (!found)
 		{
-			rects.push_back(rects_[i]);
+			rects.push_back(rect);
+			scores.push_back(score);
 		}
 	}
 

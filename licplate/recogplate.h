@@ -32,6 +32,7 @@ struct FramePlate
 struct RecogPlate
 {
 	static void recog(const vector<Mat> &imgs, vector<vector<FramePlate> > &platesets);
+	static Rect dilaterect(const Rect &rect, const Size &size, float scale);
 	static size_t editdistance( const string& A, const string& B );
 
 	RecogPlate();
@@ -39,6 +40,9 @@ struct RecogPlate
 	RecogPlate& operator=(const RecogPlate& recogplate);
 
 	virtual ~RecogPlate();
+
+	static float s_dilate;
+	static int s_minsize;
 };
 
 #endif // __RECOGPLATE_H__

@@ -5,6 +5,9 @@
 
 #include "recogplate.h"
 
+float RecogPlate::s_dilate = 1.5f;
+int RecogPlate::s_minsize = 30;
+
 void RecogPlate::recog(const vector<Mat> &imgs, vector<vector<FramePlate> > &platesets)
 {
 	platesets.clear();
@@ -23,13 +26,37 @@ void RecogPlate::recog(const vector<Mat> &imgs, vector<vector<FramePlate> > &pla
 
 		for (int j = 0; j < rects.size(); j++)
 		{	
-			affine.push_back(imgs[i](rects[j]));
-			plates.push_back(FramePlate(rects[j], "xxx"));
+			Rect rect = dilaterect(rects[j], imgs[i].size(), s_dilate);
+
+			if (min(rect.width, rect.height) < s_minsize)
+			{
+				continue;
+			}
+
+			affine.push_back(imgs[i](rect));
+			plates.push_back(FramePlate(rect, "xxx"));
 		}
 	}
 
 	AffinePlate::affine(affine, crop);
 	CropPlate::crop(crop, cropoutputs);
+}
+
+Rect RecogPlate::dilaterect(const Rect &rect, const Size &size, float scale)
+{
+	Rect rc;
+
+	rc.x = int(rect.x + rect.width / 2.f * (1.f - scale));
+	rc.y = int(rect.y + rect.height / 2.f * (1.f - scale));
+	rc.width = int(rect.width * scale);
+	rc.height = int(rect.height * scale);
+
+	rc.x = (rc.x < 0) ? 0 : rc.x;
+	rc.y = (rc.y < 0) ? 0 : rc.y;
+	rc.width = (rc.x + rc.width) > size.width ? (size.width - rc.x) : rc.width;
+	rc.height = (rc.y + rc.height) > size.height ? (size.height - rc.y) : rc.height;
+
+	return rc;
 }
 
 size_t RecogPlate::editdistance( const string& A, const string& B )

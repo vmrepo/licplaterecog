@@ -5,6 +5,9 @@
 
 #include "detectplate.h"
 
+float DetectPlate::s_scorethreshold = 0.8f;
+float DetectPlate::s_iouthreshold = 0.2f;
+
 TF_Graph* DetectPlate::s_Graph = nullptr;
 TF_Status* DetectPlate::s_Status = nullptr;
 TF_SessionOptions* DetectPlate::s_SessionOpts = nullptr;
@@ -121,7 +124,7 @@ void DetectPlate::detect(const Mat &img, vector<Rect> &rects)
 
 		float score = out[s + 4];
 
-		if (score < 0.8)
+		if (score < s_scorethreshold)
 		{
 			continue;
 		}
@@ -136,7 +139,7 @@ void DetectPlate::detect(const Mat &img, vector<Rect> &rects)
 		{
 			float iou = (float)(rect & rects[j]).area() / (rect | rects[j]).area();
 
-			if (iou < 0.2) 
+			if (iou < s_iouthreshold)
 			{
 				continue;
 			}

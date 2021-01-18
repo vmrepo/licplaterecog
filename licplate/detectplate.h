@@ -26,6 +26,9 @@ struct DetectPlate
 
 	virtual ~DetectPlate();
 
+	static float s_scorethreshold;
+	static float s_iouthreshold;
+
 	static const int samples = 1;
 	static const int width = 416;
 	static const int height = 416;

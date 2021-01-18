@@ -108,11 +108,23 @@ void CropPlate::crop(const vector<Mat> &inputs, vector<Mat> &outputs)
 		int w = inputs[i].cols;
 		int h = inputs[i].rows;
 
-		Mat output;
+		int x0 = int(roundf(out[i * 4 + 0] * w));
+		int x1 = int(roundf(out[i * 4 + 1] * w));
+		int y0 = int(roundf(out[i * 4 + 2] * h));
+		int y1 = int(roundf(out[i * 4 + 3] * h));
 
-		//...
+		x0 = (x0 < 0) ? 0 : x0;
+		x1 = (x1 > w) ? w : x1;
+		y0 = (y0 < 0) ? 0 : y0;
+		y1 = (y1 > h) ? h : y1;
 
-		outputs.push_back(output);
+		if (x1 <= x0 || y1 <= y0)
+		{
+			continue;
+		}
+
+		Rect rc = Rect(x0, y0, x1 - x0, y1 - y0);
+		outputs.push_back(inputs[i](rc));
 	}
 
 	TF_DeleteTensor(outputTensor);

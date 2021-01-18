@@ -74,7 +74,7 @@ void AffinePlate::affine(const vector<Mat> &inputs, vector<Mat> &outputs)
 {
 	outputs.clear();
 
-	int samples = inputs.size();
+	int samples = int(inputs.size());
 	const int ndims = 4;
 	int64_t dims[] = { samples, width, height, channels };
 	int length = samples * width * height * channels * sizeof(float);

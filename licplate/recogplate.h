@@ -9,6 +9,7 @@
 #include "detectplate.h"
 #include "affineplate.h"
 #include "cropplate.h"
+#include "optionsplate.h"
 
 using namespace std;
 using namespace cv;

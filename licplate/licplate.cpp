@@ -44,7 +44,7 @@ enum Status
 	ExpectFramePath
 };
 
-#define UNINIT { DetectPlate::uninit(); AffinePlate::uninit(); CropPlate::uninit(); }
+#define UNINIT { DetectPlate::uninit(); AffinePlate::uninit(); CropPlate::uninit(); OptionsPlate::uninit(); }
 
 int main(int argc, char** argv)
 {
@@ -77,6 +77,13 @@ int main(int argc, char** argv)
 	if (!CropPlate::init(pathself))
 	{
 		printf("Crop model %s not loaded\n", CROPMODELNAME);
+		UNINIT
+		return 0;
+	}
+
+	if (!OptionsPlate::init(pathself))
+	{
+		printf("Options model %s not loaded\n", OPTIONSMODELNAME);
 		UNINIT
 		return 0;
 	}

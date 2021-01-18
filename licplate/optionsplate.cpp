@@ -3,20 +3,20 @@
 
 #include <fstream>
 
-#include "cropplate.h"
+#include "optionsplate.h"
 
-TF_Graph* CropPlate::s_Graph = nullptr;
-TF_Status* CropPlate::s_Status = nullptr;
-TF_SessionOptions* CropPlate::s_SessionOpts = nullptr;
-TF_Session* CropPlate::s_Session = nullptr;
-TF_Output CropPlate::s_Input;
-TF_Output CropPlate::s_Output;
+TF_Graph* OptionsPlate::s_Graph = nullptr;
+TF_Status* OptionsPlate::s_Status = nullptr;
+TF_SessionOptions* OptionsPlate::s_SessionOpts = nullptr;
+TF_Session* OptionsPlate::s_Session = nullptr;
+TF_Output OptionsPlate::s_Input;
+TF_Output OptionsPlate::s_Output;
 
-bool CropPlate::init(const string &path)
+bool OptionsPlate::init(const string &path)
 {
 	uninit();
 
-	string saved_model_dir = path.size() ? path + "/" + CROPMODELNAME : CROPMODELNAME;
+	string saved_model_dir = path.size() ? path + "/" + OPTIONSMODELNAME : OPTIONSMODELNAME;
 
 	s_Graph = TF_NewGraph();
 	s_Status = TF_NewStatus();
@@ -44,7 +44,7 @@ bool CropPlate::init(const string &path)
 	return true;
 }
 
-void CropPlate::uninit()
+void OptionsPlate::uninit()
 {
 	if (s_Graph)
 	{
@@ -70,11 +70,9 @@ void CropPlate::uninit()
 	}
 }
 
-void CropPlate::crop(const vector<Mat> &inputs, vector<Mat> &outputs)
+void OptionsPlate::options(const vector<Mat> &patches, vector<Options> options)
 {
-	outputs.clear();
-
-	int samples = int(inputs.size());
+	int samples = int(patches.size());
 	const int ndims = 4;
 	int64_t dims[] = { samples, width, height, channels };
 	int length = samples * width * height * channels * sizeof(float);
@@ -86,7 +84,7 @@ void CropPlate::crop(const vector<Mat> &inputs, vector<Mat> &outputs)
 	for (int i = 0; i < samples; i++)
 	{
 		Mat imgresized;
-		resize(inputs[i], imgresized, Size(width, height));
+		resize(patches[i], imgresized, Size(width, height));
 		Mat imgf;
 		imgresized.convertTo(imgf, CV_32FC3, 1 / 255.f);
 		memcpy((uchar*)data + i * width * height * channels * sizeof(float), imgf.data, width * height * channels * sizeof(float));
@@ -103,48 +101,31 @@ void CropPlate::crop(const vector<Mat> &inputs, vector<Mat> &outputs)
 
 	float* out = (float*)TF_TensorData(outputTensor);
 
+
+	int n = int(TF_TensorElementCount(outputTensor));
+
 	for (int i = 0; i < samples; i++)
 	{
-		int w = inputs[i].cols;
-		int h = inputs[i].rows;
-
-		int x0 = int(roundf(out[i * 4 + 0] * w));
-		int x1 = int(roundf(out[i * 4 + 1] * w));
-		int y0 = int(roundf(out[i * 4 + 2] * h));
-		int y1 = int(roundf(out[i * 4 + 3] * h));
-
-		x0 = (x0 < 0) ? 0 : x0;
-		x1 = (x1 > w) ? w : x1;
-		y0 = (y0 < 0) ? 0 : y0;
-		y1 = (y1 > h) ? h : y1;
-
-		if (x1 <= x0 || y1 <= y0)
-		{
-			//неудача
-			//?outputs.push_back(Mat());
-			continue;
-		}
-
-		Rect rc = Rect(x0, y0, x1 - x0, y1 - y0);
-		outputs.push_back(inputs[i](rc));
+		int w = patches[i].cols;
+		int h = patches[i].rows;
 	}
 
 	TF_DeleteTensor(outputTensor);
 }
 
-CropPlate::CropPlate()
+OptionsPlate::OptionsPlate()
 {
 }
 
-CropPlate::CropPlate(const CropPlate& cropplate)
+OptionsPlate::OptionsPlate(const OptionsPlate& optionsplate)
 {
 }
 
-CropPlate& CropPlate::operator=(const CropPlate& cropplate)
+OptionsPlate& OptionsPlate::operator=(const OptionsPlate& optionsplate)
 {
 	return *this;
 }
 
-CropPlate::~CropPlate()
+OptionsPlate::~OptionsPlate()
 {
 }

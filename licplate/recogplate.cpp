@@ -14,7 +14,7 @@ void RecogPlate::recog(const vector<Mat> &imgs, vector<vector<FramePlate> > &pla
 
 	vector<Mat> affine;
 	vector<Mat> crop;
-	vector<Mat> cropoutputs;
+	vector<Mat> patches;
 
 	for (int i = 0; i < imgs.size(); i++)
 	{
@@ -39,7 +39,12 @@ void RecogPlate::recog(const vector<Mat> &imgs, vector<vector<FramePlate> > &pla
 	}
 
 	AffinePlate::affine(affine, crop);
-	CropPlate::crop(crop, cropoutputs);
+	CropPlate::crop(crop, patches);
+
+	//?учесть что crop для каких-либо патчей может вернуть неудачу
+
+	vector<Options> options;
+	OptionsPlate::options(patches, options);
 }
 
 Rect RecogPlate::dilaterect(const Rect &rect, const Size &size, float scale)

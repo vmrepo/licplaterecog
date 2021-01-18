@@ -44,7 +44,7 @@ enum Status
 	ExpectFramePath
 };
 
-#define UNINIT { DetectPlate::uninit(); }
+#define UNINIT { DetectPlate::uninit(); AffinePlate::uninit(); }
 
 int main(int argc, char** argv)
 {
@@ -63,6 +63,13 @@ int main(int argc, char** argv)
 	if (!DetectPlate::init(pathself))
 	{
 		printf("Detector model %s not loaded\n", DETECTMODELNAME);
+		UNINIT
+		return 0;
+	}
+
+	if (!AffinePlate::init(pathself))
+	{
+		printf("Affine model %s not loaded\n", AFFINEMODELNAME);
 		UNINIT
 		return 0;
 	}

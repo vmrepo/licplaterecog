@@ -90,6 +90,7 @@
     <ClInclude Include="imageplate.h" />
     <ClInclude Include="recogplate.h" />
     <ClInclude Include="detectplate.h" />
+    <ClInclude Include="affineplate.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="videoplate.h" />
@@ -99,6 +100,7 @@
     <ClCompile Include="imageplate.cpp" />
     <ClCompile Include="recogplate.cpp" />
     <ClCompile Include="detectplate.cpp" />
+    <ClCompile Include="affineplate.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>

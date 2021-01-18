@@ -7,6 +7,7 @@
 #include "opencv2/opencv.hpp"
 
 #include "detectplate.h"
+#include "affineplate.h"
 
 using namespace std;
 using namespace cv;

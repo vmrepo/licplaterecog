@@ -8,6 +8,7 @@
 
 #include "detectplate.h"
 #include "affineplate.h"
+#include "cropplate.h"
 
 using namespace std;
 using namespace cv;

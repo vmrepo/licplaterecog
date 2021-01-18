@@ -9,9 +9,9 @@ void RecogPlate::recog(const vector<Mat> &imgs, vector<vector<FramePlate> > &pla
 {
 	platesets.clear();
 
-
-	vector<Mat> affineinputs;
-	vector<Mat> affineoutputs;
+	vector<Mat> affine;
+	vector<Mat> crop;
+	vector<Mat> cropoutputs;
 
 	for (int i = 0; i < imgs.size(); i++)
 	{
@@ -21,22 +21,15 @@ void RecogPlate::recog(const vector<Mat> &imgs, vector<vector<FramePlate> > &pla
 		vector<Rect> rects;
 		DetectPlate::detect(imgs[i], rects);
 
-
-
-		for( int j = 0; j < rects.size(); j++ ) {
-			affineinputs.push_back(imgs[i](rects[j]));
-		}
-
-
-
 		for (int j = 0; j < rects.size(); j++)
 		{	
+			affine.push_back(imgs[i](rects[j]));
 			plates.push_back(FramePlate(rects[j], "xxx"));
 		}
 	}
 
-
-	AffinePlate::affine(affineinputs, affineoutputs);
+	AffinePlate::affine(affine, crop);
+	CropPlate::crop(crop, cropoutputs);
 }
 
 size_t RecogPlate::editdistance( const string& A, const string& B )

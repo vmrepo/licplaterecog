@@ -96,7 +96,7 @@ void AffinePlate::affine(const vector<Mat> &inputs, vector<Mat> &outputs)
 
 	TF_DeleteTensor(inputTensor);
 
-	if (TF_GetCode( s_Status ) != TF_OK) {
+	if (TF_GetCode(s_Status) != TF_OK) {
 		printf("%s", TF_Message(s_Status));
 		return;
 	}

@@ -45,6 +45,47 @@ void RecogPlate::recog(const vector<Mat> &imgs, vector<vector<FramePlate> > &pla
 
 	vector<Options> options;
 	OptionsPlate::options(patches, options);
+
+	vector<OcrType> ocrtypes;
+
+	for (int i = 0; i < patches.size() ;i++)
+	{
+		switch (options[i].region)
+		{
+			case by:
+				ocrtypes.push_back(BY);
+				break;
+
+			case eu:
+				ocrtypes.push_back(EU);
+				break;
+
+			case kz:
+				ocrtypes.push_back(KZ);
+				break;
+
+			case ru:
+			case dnr:
+			case lnr:
+				ocrtypes.push_back(RU);
+				break;
+
+			case ua2004:
+			case ua2015:
+				ocrtypes.push_back(UA);
+				break;
+
+			default:
+				ocrtypes.push_back(NO);
+		}
+	}
+
+	//?чаще будут номера одного типа
+	//поэтому проанализировать что они всего одного типа и вызвть пакетом для patches
+	//если разных типов (что редко) - вызывать отдельно для каждого номера
+
+	vector<string> texts;
+	OcrPlate::ocr(RU, patches, texts);
 }
 
 Rect RecogPlate::dilaterect(const Rect &rect, const Size &size, float scale)

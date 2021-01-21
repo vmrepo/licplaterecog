@@ -44,7 +44,8 @@ enum Status
 	ExpectFramePath
 };
 
-#define UNINIT { DetectPlate::uninit(); AffinePlate::uninit(); CropPlate::uninit(); OptionsPlate::uninit(); }
+#define UNINIT { DetectPlate::uninit(); AffinePlate::uninit(); CropPlate::uninit(); OptionsPlate::uninit(); \
+		OcrPlate::uninit(BY); OcrPlate::uninit(EU); OcrPlate::uninit(KZ); OcrPlate::uninit(RU); OcrPlate::uninit(UA); }
 
 int main(int argc, char** argv)
 {
@@ -84,6 +85,41 @@ int main(int argc, char** argv)
 	if (!OptionsPlate::init(pathself))
 	{
 		printf("Options model %s not loaded\n", OPTIONSMODELNAME);
+		UNINIT
+		return 0;
+	}
+
+	if (!OcrPlate::init(pathself, BY))
+	{
+		printf("Ocr BY model %s not loaded\n", OCRBYMODELNAME);
+		UNINIT
+		return 0;
+	}
+
+	if (!OcrPlate::init(pathself, EU))
+	{
+		printf("Ocr EU model %s not loaded\n", OCREUMODELNAME);
+		UNINIT
+		return 0;
+	}
+
+	if (!OcrPlate::init(pathself, KZ))
+	{
+		printf("Ocr KZ model %s not loaded\n", OCRKZMODELNAME);
+		UNINIT
+		return 0;
+	}
+
+	if (!OcrPlate::init(pathself, RU))
+	{
+		printf("Ocr RU model %s not loaded\n", OCRRUMODELNAME);
+		UNINIT
+		return 0;
+	}
+
+	if (!OcrPlate::init(pathself, UA))
+	{
+		printf("Ocr UA model %s not loaded\n", OCRUAMODELNAME);
 		UNINIT
 		return 0;
 	}

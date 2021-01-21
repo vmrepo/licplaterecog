@@ -103,7 +103,7 @@ void DetectPlate::detect(const Mat &img, vector<Rect> &rects)
 
 	TF_SessionRun(s_Session, nullptr, &s_Input, &s_InputTensor, 1, &s_Output, &outputTensor, 1, nullptr, 0, nullptr, s_Status);
 
-	if (TF_GetCode( s_Status ) != TF_OK) {
+	if (TF_GetCode(s_Status) != TF_OK) {
 		printf("%s", TF_Message(s_Status));
 		return;
 	}

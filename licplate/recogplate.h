@@ -10,6 +10,7 @@
 #include "affineplate.h"
 #include "cropplate.h"
 #include "optionsplate.h"
+#include "ocrplate.h"
 
 using namespace std;
 using namespace cv;

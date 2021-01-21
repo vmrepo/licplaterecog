@@ -76,7 +76,7 @@ void CropPlate::crop(const vector<Mat> &inputs, vector<Mat> &outputs)
 
 	int samples = int(inputs.size());
 	const int ndims = 4;
-	int64_t dims[] = { samples, width, height, channels };
+	int64_t dims[] = { samples, height, width, channels };
 	int length = samples * width * height * channels * sizeof(float);
 	TF_Tensor* inputTensor = TF_AllocateTensor(TF_FLOAT, dims, ndims, length);
 

@@ -49,6 +49,7 @@ struct OptionsPlate
 	static bool init(const string &path);
 	static void uninit();
 	static void options(const vector<Mat> &patches, vector<Options> options);
+	static int argmax(float* v, int l) { int j = 0; for (int i = 0; i < l; i++) if (v[i] > v[j]) j = i;	return j; }
 
 	OptionsPlate();
 	OptionsPlate(const OptionsPlate& optionsplate);
@@ -64,8 +65,8 @@ struct OptionsPlate
 	static TF_Status* s_Status;
 	static TF_SessionOptions* s_SessionOpts;
 	static TF_Session* s_Session;
-	static TF_Output s_Input;
-	static TF_Output s_Output;
+	static TF_Output s_Input[1];
+	static TF_Output s_Output[3];
 };
 
 #endif // __OPTIONSPLATE_H__

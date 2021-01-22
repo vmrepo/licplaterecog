@@ -124,8 +124,8 @@ void OptionsPlate::options(const vector<Mat> &patches, vector<Options> &options)
 	n[1] = int(TF_Dim(outputTensor[1], 1));
 	n[2] = int(TF_Dim(outputTensor[2], 1));
 
-	assert(n[1] = 14);//Region
-	assert(n[2] = 4);//State
+	assert(n[1] == 14);//Region
+	assert(n[2] == 4);//State
 
 	float* out[3];
 	out[0] = (float*)TF_TensorData(outputTensor[0]);

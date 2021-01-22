@@ -109,14 +109,6 @@ void OcrPlate::ocr(OcrType ocrtype, const vector<Mat> &patches, vector<string> &
 
 		transpose(imgf, imgf);
 
-		/*FILE* f = fopen( "D:/remember/experimental/licplate/out/log.txt", "w" );
-		for( int y = 0; y < height; y++ ) {
-			for( int x = 0; x < width; x++ ) {
-				fprintf(f, "%f\n", imgf.at<float>(y, x));
-			}
-		}
-		fclose( f );*/
-
 		memcpy((uchar*)data + i * width * height * channels * sizeof(float), imgf.data, width * height * channels * sizeof(float));
 	}
 
@@ -129,23 +121,41 @@ void OcrPlate::ocr(OcrType ocrtype, const vector<Mat> &patches, vector<string> &
 		return;
 	}
 
+	int n = int(TF_Dim(outputTensor, 1));
+	int m = int(TF_Dim(outputTensor, 2));
+
 	float* out = (float*)TF_TensorData(outputTensor);
 
-	/*FILE* f = fopen( "D:/remember/experimental/licplate/out/out.txt", "w" );
+	//decoding
+
+	const string &letters = OcrLetters[ocrtype];
+
 	for (int i = 0; i < samples; i++)
 	{
-		for( int j = 0; j < 32; j++ ) {
-			for( int k = 0; k < 23; k++ ) {
-				float v = out[i * 32 * 23 + j * 23 + k];
-				fprintf( f, "%f ", v );
+		string text;
+
+		char g = 0;
+
+		for (int j = 2; j < n; j++)
+		{
+			int k = argmax(out + i * n * m + j * m, m);
+
+			if (k < letters.size())
+			{
+				if (!text.size() || g != letters[k])
+				{
+					g = letters[k];
+					text.push_back(g);
+				}
+			} 
+			else 
+			{
+				g = 0;
 			}
-			fprintf( f, "\n" );
 		}
-		fprintf( f, "\n" );
-		fprintf( f, "\n" );
-		fprintf( f, "\n" );
+
+		texts.push_back(text);
 	}
-	fclose( f );*/
 
 	TF_DeleteTensor(outputTensor);
 }

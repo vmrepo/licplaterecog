@@ -39,6 +39,14 @@ const static string OcrInputs[] = {
 	"serving_default_the_input_eu_ua_2004_2015"
 };
 
+const static string OcrLetters[] = {
+	"0123456789ABCEHIKMOPTX",
+	"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+	"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+	"0123456789ABCEHKMOPTXY",
+	"0123456789ABCEHIKMOPTX"
+};
+
 struct OcrConfig {
 	TF_Graph* s_Graph;
 	TF_Status* s_Status;
@@ -53,6 +61,7 @@ struct OcrPlate
 	static bool init(const string &path, OcrType ocrtype);
 	static void uninit(OcrType ocrtype);
 	static void ocr(OcrType ocrtype, const vector<Mat> &patches, vector<string> &texts);
+	static int argmax(float* v, int l) { int j = 0; for (int i = 0; i < l; i++) if (v[i] > v[j]) j = i; return j; }
 
 	OcrPlate();
 	OcrPlate(const OcrPlate& ocrplate);

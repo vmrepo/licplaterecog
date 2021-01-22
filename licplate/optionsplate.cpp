@@ -76,8 +76,10 @@ void OptionsPlate::uninit()
 	}
 }
 
-void OptionsPlate::options(const vector<Mat> &patches, vector<Options> options)
+void OptionsPlate::options(const vector<Mat> &patches, vector<Options> &options)
 {
+	options.clear();
+
 	int samples = int(patches.size());
 	const int ndims = 4;
 	int64_t dims[] = { samples, height, width, channels };
@@ -97,7 +99,6 @@ void OptionsPlate::options(const vector<Mat> &patches, vector<Options> options)
 		Mat imgf;
 		imgresized.convertTo(imgf, CV_32FC3);
 
-		//advanced normalisation
 		double min, max;
 		minMaxLoc(imgf, &min, &max);
 		imgf -= Scalar((float)min, (float)min, (float)min);

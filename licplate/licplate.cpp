@@ -91,35 +91,35 @@ int main(int argc, char** argv)
 
 	if (!OcrPlate::init(pathself, BY))
 	{
-		printf("Ocr BY model %s not loaded\n", OCRBYMODELNAME);
+		printf("Ocr BY model %s not loaded\n", OCRMODELNAME(BY));
 		UNINIT
 		return 0;
 	}
 
 	if (!OcrPlate::init(pathself, EU))
 	{
-		printf("Ocr EU model %s not loaded\n", OCREUMODELNAME);
+		printf("Ocr EU model %s not loaded\n", OCRMODELNAME(EU));
 		UNINIT
 		return 0;
 	}
 
 	if (!OcrPlate::init(pathself, KZ))
 	{
-		printf("Ocr KZ model %s not loaded\n", OCRKZMODELNAME);
+		printf("Ocr KZ model %s not loaded\n", OCRMODELNAME(KZ));
 		UNINIT
 		return 0;
 	}
 
 	if (!OcrPlate::init(pathself, RU))
 	{
-		printf("Ocr RU model %s not loaded\n", OCRRUMODELNAME);
+		printf("Ocr RU model %s not loaded\n", OCRMODELNAME(RU));
 		UNINIT
 		return 0;
 	}
 
 	if (!OcrPlate::init(pathself, UA))
 	{
-		printf("Ocr UA model %s not loaded\n", OCRUAMODELNAME);
+		printf("Ocr UA model %s not loaded\n", OCRMODELNAME(UA));
 		UNINIT
 		return 0;
 	}

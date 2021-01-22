@@ -12,11 +12,7 @@
 using namespace std;
 using namespace cv;
 
-#define OCRBYMODELNAME "ocrby"
-#define OCREUMODELNAME "ocreu"
-#define OCRKZMODELNAME "ocrkz"
-#define OCRRUMODELNAME "ocrru"
-#define OCRUAMODELNAME "ocrua"
+#define OCRMODELNAME(type) (OcrModels[type].c_str())
 
 enum OcrType {
 	BY = 0,
@@ -25,6 +21,22 @@ enum OcrType {
 	RU,
 	UA,
 	NO
+};
+
+const static string OcrModels[] = { 
+	"ocrby",
+	"ocreu",
+	"ocrkz",
+	"ocrru",
+	"ocrua"
+};
+
+const static string OcrInputs[] = {
+	"serving_default_the_input_by",
+	"serving_default_the_input_eu",
+	"serving_default_the_input_kz",
+	"serving_default_the_input_ru",
+	"serving_default_the_input_eu_ua_2004_2015"
 };
 
 struct OcrConfig {

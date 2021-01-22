@@ -48,8 +48,8 @@ struct OptionsPlate
 {
 	static bool init(const string &path);
 	static void uninit();
-	static void options(const vector<Mat> &patches, vector<Options> options);
-	static int argmax(float* v, int l) { int j = 0; for (int i = 0; i < l; i++) if (v[i] > v[j]) j = i;	return j; }
+	static void options(const vector<Mat> &patches, vector<Options> &options);
+	static int argmax(float* v, int l) { int j = 0; for (int i = 0; i < l; i++) if (v[i] > v[j]) j = i; return j; }
 
 	OptionsPlate();
 	OptionsPlate(const OptionsPlate& optionsplate);

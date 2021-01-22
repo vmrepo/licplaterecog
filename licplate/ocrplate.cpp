@@ -11,32 +11,7 @@ bool OcrPlate::init(const string &path, OcrType ocrtype)
 {
 	uninit(ocrtype);
 
-	string modelname;
-
-	switch (ocrtype)
-	{
-		case BY:
-			modelname = OCRBYMODELNAME;
-			break;
-
-		case EU:
-			modelname = OCREUMODELNAME;
-			break;
-
-		case KZ:
-			modelname = OCRKZMODELNAME;
-			break;
-
-		case RU:
-			modelname = OCRRUMODELNAME;
-			break;
-
-		case UA:
-			modelname = OCRUAMODELNAME;
-			break;
-	}
-
-	string saved_model_dir = path.size() ? path + "/" + modelname : modelname;
+	string saved_model_dir = path.size() ? path + "/" + OcrModels[ocrtype]: OcrModels[ocrtype];
 
 	OcrConfig &config = s_configs[ocrtype];
 
@@ -57,7 +32,7 @@ bool OcrPlate::init(const string &path, OcrType ocrtype)
 		return false;
 	}
 
-	config.s_Input.oper = TF_GraphOperationByName(config.s_Graph, "serving_default_input_1");
+	config.s_Input.oper = TF_GraphOperationByName(config.s_Graph, OcrInputs[ocrtype].c_str());
 	config.s_Input.index = 0;
 
 	config.s_Output.oper = TF_GraphOperationByName(config.s_Graph, "StatefulPartitionedCall");
@@ -111,10 +86,37 @@ void OcrPlate::ocr(OcrType ocrtype, const vector<Mat> &patches, vector<string> &
 	void* data = TF_TensorData(inputTensor);
 	for (int i = 0; i < samples; i++)
 	{
-		Mat imgresized;
-		resize(patches[i], imgresized, Size(width, height));
+		//?пересклеить строки
+
+		Mat img;
+		cvtColor(patches[i], img, COLOR_RGB2GRAY);
+
+		//будет транспонироваться
+		resize(img, img, Size(height, width));
+
+		Ptr<CLAHE> clahe = createCLAHE(2.0, Size(8, 8));
+		clahe->apply(img, img);
+
 		Mat imgf;
-		imgresized.convertTo(imgf, CV_32FC3, 1 / 255.f);
+		img.convertTo(imgf, CV_32F);
+
+		double min, max;
+		minMaxLoc(imgf, &min, &max);
+		imgf -= min;
+		max -= min;
+		max = max != 0 ? max : 1;
+		imgf /= (float)max;
+
+		transpose(imgf, imgf);
+
+		/*FILE* f = fopen( "D:/remember/experimental/licplate/out/log.txt", "w" );
+		for( int y = 0; y < height; y++ ) {
+			for( int x = 0; x < width; x++ ) {
+				fprintf(f, "%f\n", imgf.at<float>(y, x));
+			}
+		}
+		fclose( f );*/
+
 		memcpy((uchar*)data + i * width * height * channels * sizeof(float), imgf.data, width * height * channels * sizeof(float));
 	}
 
@@ -129,9 +131,21 @@ void OcrPlate::ocr(OcrType ocrtype, const vector<Mat> &patches, vector<string> &
 
 	float* out = (float*)TF_TensorData(outputTensor);
 
+	/*FILE* f = fopen( "D:/remember/experimental/licplate/out/out.txt", "w" );
 	for (int i = 0; i < samples; i++)
 	{
+		for( int j = 0; j < 32; j++ ) {
+			for( int k = 0; k < 23; k++ ) {
+				float v = out[i * 32 * 23 + j * 23 + k];
+				fprintf( f, "%f ", v );
+			}
+			fprintf( f, "\n" );
+		}
+		fprintf( f, "\n" );
+		fprintf( f, "\n" );
+		fprintf( f, "\n" );
 	}
+	fclose( f );*/
 
 	TF_DeleteTensor(outputTensor);
 }

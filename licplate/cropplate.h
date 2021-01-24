@@ -18,7 +18,7 @@ struct CropPlate
 {
 	static bool init(const string &path);
 	static void uninit();
-	static void crop(const vector<Mat> &inputs, vector<Mat> &outputs);
+	static void crop(const vector<pair<int, Mat> > &inputs, vector<pair<int, Mat> > &outputs);
 
 	CropPlate();
 	CropPlate(const CropPlate& cropplate);

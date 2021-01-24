@@ -76,7 +76,7 @@ void OptionsPlate::uninit()
 	}
 }
 
-void OptionsPlate::options(const vector<Mat> &patches, vector<Options> &options)
+void OptionsPlate::options(const vector<pair<int, Mat> > &patches, vector<Options> &options)
 {
 	options.clear();
 
@@ -94,7 +94,7 @@ void OptionsPlate::options(const vector<Mat> &patches, vector<Options> &options)
 	for (int i = 0; i < samples; i++)
 	{
 		Mat imgresized;
-		resize(patches[i], imgresized, Size(width, height));
+		resize(patches[i].second, imgresized, Size(width, height));
 
 		Mat imgf;
 		imgresized.convertTo(imgf, CV_32FC3);

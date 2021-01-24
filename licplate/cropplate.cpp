@@ -70,7 +70,7 @@ void CropPlate::uninit()
 	}
 }
 
-void CropPlate::crop(const vector<Mat> &inputs, vector<Mat> &outputs)
+void CropPlate::crop(const vector<pair<int, Mat> > &inputs, vector<pair<int, Mat> > &outputs)
 {
 	outputs.clear();
 
@@ -86,7 +86,7 @@ void CropPlate::crop(const vector<Mat> &inputs, vector<Mat> &outputs)
 	for (int i = 0; i < samples; i++)
 	{
 		Mat imgresized;
-		resize(inputs[i], imgresized, Size(width, height));
+		resize(inputs[i].second, imgresized, Size(width, height));
 		Mat imgf;
 		imgresized.convertTo(imgf, CV_32FC3, 1 / 255.f);
 		memcpy((uchar*)data + i * width * height * channels * sizeof(float), imgf.data, width * height * channels * sizeof(float));
@@ -105,8 +105,8 @@ void CropPlate::crop(const vector<Mat> &inputs, vector<Mat> &outputs)
 
 	for (int i = 0; i < samples; i++)
 	{
-		int w = inputs[i].cols;
-		int h = inputs[i].rows;
+		int w = inputs[i].second.cols;
+		int h = inputs[i].second.rows;
 
 		int x0 = int(roundf(out[i * 4 + 0] * w));
 		int x1 = int(roundf(out[i * 4 + 1] * w));
@@ -120,13 +120,11 @@ void CropPlate::crop(const vector<Mat> &inputs, vector<Mat> &outputs)
 
 		if (x1 <= x0 || y1 <= y0)
 		{
-			//неудача
-			//?outputs.push_back(Mat());
 			continue;
 		}
 
 		Rect rc = Rect(x0, y0, x1 - x0, y1 - y0);
-		outputs.push_back(inputs[i](rc));
+		outputs.push_back(pair<int, Mat>(inputs[i].first, inputs[i].second(rc)));
 	}
 
 	TF_DeleteTensor(outputTensor);

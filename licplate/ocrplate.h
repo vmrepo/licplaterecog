@@ -19,8 +19,7 @@ enum OcrType {
 	EU,
 	KZ,
 	RU,
-	UA,
-	NO
+	UA
 };
 
 const static string OcrModels[] = { 
@@ -60,7 +59,7 @@ struct OcrPlate
 {
 	static bool init(const string &path, OcrType ocrtype);
 	static void uninit(OcrType ocrtype);
-	static void ocr(OcrType ocrtype, const vector<Mat> &patches, vector<string> &texts);
+	static void ocr(OcrType ocrtype, const vector<pair<int, Mat> > &patches, vector<string> &texts);
 	static int argmax(float* v, int l) { int j = 0; for (int i = 0; i < l; i++) if (v[i] > v[j]) j = i; return j; }
 
 	OcrPlate();

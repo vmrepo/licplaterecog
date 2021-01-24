@@ -12,80 +12,112 @@ void RecogPlate::recog(const vector<Mat> &imgs, vector<vector<FramePlate> > &pla
 {
 	platesets.clear();
 
-	vector<Mat> affine;
-	vector<Mat> crop;
-	vector<Mat> patches;
+	map<int, Rect> rects;
+	map<int, int> matches;
 
+	int id = 0;
+
+	vector<pair<int, Mat> > foraffines;
 	for (int i = 0; i < imgs.size(); i++)
 	{
 		platesets.push_back(vector<FramePlate>());
-		vector<FramePlate> &plates = platesets[i];
 
-		vector<Rect> rects;
-		DetectPlate::detect(imgs[i], rects);
+		vector<Rect> rcboxes;
+		DetectPlate::detect(imgs[i], rcboxes);
 
-		for (int j = 0; j < rects.size(); j++)
+		for (int j = 0; j < rcboxes.size(); j++)
 		{	
-			Rect rect = dilaterect(rects[j], imgs[i].size(), s_dilate);
+			Rect rc = dilaterect(rcboxes[j], imgs[i].size(), s_dilate);
 
-			if (min(rect.width, rect.height) < s_minsize)
+			if (min(rc.width, rc.height) < s_minsize)
 			{
 				continue;
 			}
 
-			affine.push_back(imgs[i](rect));
-			plates.push_back(FramePlate(rect, "xxx"));
+			foraffines.push_back(pair<int, Mat>(id, imgs[i](rc)));
+
+			rects[id] = rcboxes[j];
+			matches[id] = i;
+			id++;
 		}
 	}
 
-	AffinePlate::affine(affine, crop);
-	CropPlate::crop(crop, patches);
+	vector<pair<int, Mat> > forcrops;
+	AffinePlate::affine(foraffines, forcrops);
 
-	//?учесть что crop для каких-либо патчей может вернуть неудачу
+	vector<pair<int, Mat> > forptions;
+	CropPlate::crop(forcrops, forptions);
 
 	vector<Options> options;
-	OptionsPlate::options(patches, options);
+	OptionsPlate::options(forptions, options);
 
+	vector<pair<int, Mat> > forocr;
 	vector<OcrType> ocrtypes;
-
-	for (int i = 0; i < patches.size() ;i++)
+	bool single = true;
+	for (int i = 0; i < forptions.size(); i++)
 	{
 		switch (options[i].region)
 		{
 			case by:
+				forocr.push_back(forptions[i]);
 				ocrtypes.push_back(BY);
 				break;
 
 			case eu:
+				forocr.push_back(forptions[i]);
 				ocrtypes.push_back(EU);
 				break;
 
 			case kz:
+				forocr.push_back(forptions[i]);
 				ocrtypes.push_back(KZ);
 				break;
 
 			case ru:
 			case dnr:
 			case lnr:
+				forocr.push_back(forptions[i]);
 				ocrtypes.push_back(RU);
 				break;
 
 			case ua2004:
 			case ua2015:
+				forocr.push_back(forptions[i]);
 				ocrtypes.push_back(UA);
 				break;
+		}
 
-			default:
-				ocrtypes.push_back(NO);
+		if (i != 0 && ocrtypes[i-1] != ocrtypes[i])
+		{
+			single = false;
 		}
 	}
 
-	//?чаще будут номера одного типа
-	//поэтому проанализировать что они всего одного типа и вызвть пакетом для patches
-	//если разных типов (что редко) - вызывать отдельно для каждого номера
-
 	vector<string> texts;
-	OcrPlate::ocr(RU, patches, texts);
+	if (forocr.size())
+	{
+		if (single) {
+			OcrPlate::ocr(ocrtypes[0], forocr, texts);
+		}
+		else
+		{
+			//этот случай предполагается редким
+			for (int i = 0; i < forocr.size(); i++)
+			{
+				vector<pair<int, Mat> > forocr_;
+				vector<string> texts_;
+				forocr_.push_back(forocr[i]);
+				OcrPlate::ocr(ocrtypes[i], forocr_, texts_);
+				texts.push_back(texts_[0]);
+			}
+		}
+	}
+
+	for (int i = 0; i < forocr.size(); i++)
+	{
+		int id = forocr[i].first;
+		platesets[matches[id]].push_back(FramePlate(rects[id], texts[i]));
+	}
 }
 
 Rect RecogPlate::dilaterect(const Rect &rect, const Size &size, float scale)

@@ -18,7 +18,7 @@ struct AffinePlate
 {
 	static bool init(const string &path);
 	static void uninit();
-	static void affine(const vector<Mat> &inputs, vector<Mat> &outputs);
+	static void affine(const vector<pair<int, Mat> > &inputs, vector<pair<int, Mat> > &outputs);
 
 	AffinePlate();
 	AffinePlate(const AffinePlate& affineplate);

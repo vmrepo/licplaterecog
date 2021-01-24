@@ -70,7 +70,7 @@ void AffinePlate::uninit()
 	}
 }
 
-void AffinePlate::affine(const vector<Mat> &inputs, vector<Mat> &outputs)
+void AffinePlate::affine(const vector<pair<int, Mat> > &inputs, vector<pair<int, Mat> > &outputs)
 {
 	outputs.clear();
 
@@ -86,7 +86,7 @@ void AffinePlate::affine(const vector<Mat> &inputs, vector<Mat> &outputs)
 	for (int i = 0; i < samples; i++)
 	{
 		Mat imgresized;
-		resize(inputs[i], imgresized, Size(width, height));
+		resize(inputs[i].second, imgresized, Size(width, height));
 		Mat imgf;
 		imgresized.convertTo(imgf, CV_32FC3, 1 / 255.f);
 		memcpy((uchar*)data + i * width * height * channels * sizeof(float), imgf.data, width * height * channels * sizeof(float));
@@ -105,8 +105,8 @@ void AffinePlate::affine(const vector<Mat> &inputs, vector<Mat> &outputs)
 
 	for (int i = 0; i < samples; i++)
 	{
-		int w = inputs[i].cols;
-		int h = inputs[i].rows;
+		int w = inputs[i].second.cols;
+		int h = inputs[i].second.rows;
 
 		float up = out[i * 2 + 0] * w;
 		float left = out[i * 2 + 1] * h;
@@ -123,9 +123,9 @@ void AffinePlate::affine(const vector<Mat> &inputs, vector<Mat> &outputs)
 
 		Mat output;
 		Mat mat = getAffineTransform(src, dst);
-		warpAffine(inputs[i], output, mat, Size(w, h), INTER_CUBIC, BORDER_REPLICATE);
+		warpAffine(inputs[i].second, output, mat, Size(w, h), INTER_CUBIC, BORDER_REPLICATE);
 
-		outputs.push_back(output);
+		outputs.push_back(pair<int ,Mat>(inputs[i].first, output));
 	}
 
 	TF_DeleteTensor(outputTensor);

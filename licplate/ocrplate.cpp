@@ -69,7 +69,7 @@ void OcrPlate::uninit(OcrType ocrtype)
 	}
 }
 
-void OcrPlate::ocr(OcrType ocrtype, const vector<Mat> &patches, vector<string> &texts)
+void OcrPlate::ocr(OcrType ocrtype, const vector<pair<int, Mat> > &patches, vector<string> &texts)
 {
 	texts.clear();
 
@@ -89,7 +89,7 @@ void OcrPlate::ocr(OcrType ocrtype, const vector<Mat> &patches, vector<string> &
 		//?пересклеить строки
 
 		Mat img;
-		cvtColor(patches[i], img, COLOR_RGB2GRAY);
+		cvtColor(patches[i].second, img, COLOR_RGB2GRAY);
 
 		//будет транспонироваться
 		resize(img, img, Size(height, width));

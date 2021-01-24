@@ -35,6 +35,7 @@ struct RecogPlate
 {
 	static void recog(const vector<Mat> &imgs, vector<vector<FramePlate> > &platesets);
 	static Rect dilaterect(const Rect &rect, const Size &size, float scale);
+	static Mat splitlines(const Mat& mat, int lines, float coef = 0.1f);
 	static size_t editdistance( const string& A, const string& B );
 
 	RecogPlate();

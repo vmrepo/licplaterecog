@@ -86,8 +86,6 @@ void OcrPlate::ocr(OcrType ocrtype, const vector<pair<int, Mat> > &patches, vect
 	void* data = TF_TensorData(inputTensor);
 	for (int i = 0; i < samples; i++)
 	{
-		//?пересклеить строки
-
 		Mat img;
 		cvtColor(patches[i].second, img, COLOR_RGB2GRAY);
 

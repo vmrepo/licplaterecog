@@ -45,44 +45,44 @@ void RecogPlate::recog(const vector<Mat> &imgs, vector<vector<FramePlate> > &pla
 	vector<pair<int, Mat> > forcrops;
 	AffinePlate::affine(foraffines, forcrops);
 
-	vector<pair<int, Mat> > forptions;
-	CropPlate::crop(forcrops, forptions);
+	vector<pair<int, Mat> > foroptions;
+	CropPlate::crop(forcrops, foroptions);
 
 	vector<Options> options;
-	OptionsPlate::options(forptions, options);
+	OptionsPlate::options(foroptions, options);
 
 	vector<pair<int, Mat> > forocr;
 	vector<OcrType> ocrtypes;
 	bool single = true;
-	for (int i = 0; i < forptions.size(); i++)
+	for (int i = 0; i < foroptions.size(); i++)
 	{
 		switch (options[i].region)
 		{
 			case by:
-				forocr.push_back(forptions[i]);
+				forocr.push_back(options[i].lines > 1 ? pair<int, Mat>(foroptions[i].first, splitlines(foroptions[i].second, options[i].lines)) : foroptions[i]);
 				ocrtypes.push_back(BY);
 				break;
 
 			case eu:
-				forocr.push_back(forptions[i]);
+				forocr.push_back(options[i].lines > 1 ? pair<int, Mat>(foroptions[i].first, splitlines(foroptions[i].second, options[i].lines)) : foroptions[i]);
 				ocrtypes.push_back(EU);
 				break;
 
 			case kz:
-				forocr.push_back(forptions[i]);
+				forocr.push_back(options[i].lines > 1 ? pair<int, Mat>(foroptions[i].first, splitlines(foroptions[i].second, options[i].lines)) : foroptions[i]);
 				ocrtypes.push_back(KZ);
 				break;
 
 			case ru:
 			case dnr:
 			case lnr:
-				forocr.push_back(forptions[i]);
+				forocr.push_back(options[i].lines > 1 ? pair<int, Mat>(foroptions[i].first, splitlines(foroptions[i].second, options[i].lines)) : foroptions[i]);
 				ocrtypes.push_back(RU);
 				break;
 
 			case ua2004:
 			case ua2015:
-				forocr.push_back(forptions[i]);
+				forocr.push_back(options[i].lines > 1 ? pair<int, Mat>(foroptions[i].first, splitlines(foroptions[i].second, options[i].lines)) : foroptions[i]);
 				ocrtypes.push_back(UA);
 				break;
 		}
@@ -135,6 +135,51 @@ Rect RecogPlate::dilaterect(const Rect &rect, const Size &size, float scale)
 	rc.height = (rc.y + rc.height) > size.height ? (size.height - rc.y) : rc.height;
 
 	return rc;
+}
+
+Mat RecogPlate::splitlines(const Mat& mat, int lines, float coef)
+{
+	if (lines > 1)
+	{
+		int w = mat.cols;
+		int h = mat.rows;
+		int dy = int(h / lines);
+		int overlap = int(coef * h / 2);
+		Mat res;
+
+		for (int i = 0; i < lines; i++)
+		{
+			int y0;
+
+			if (i == 0)
+			{
+				y0 = 0;
+			}
+			else if (i + 1 == lines)
+			{
+				y0 = i * dy - overlap * 2;
+			}
+			else
+			{
+				y0 = i * dy - overlap;
+			}
+
+			int y1 = y0 + dy + overlap * 2;
+
+			if (i == 0)
+			{
+				res = mat(Rect(0, y0, w, y1 - y0));
+			}
+			else
+			{
+				hconcat(res, mat(Rect(0, y0, w, y1 - y0)), res);
+			}
+		}
+
+		return res;
+	}
+
+	return mat;
 }
 
 size_t RecogPlate::editdistance( const string& A, const string& B )

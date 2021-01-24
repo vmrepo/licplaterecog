@@ -222,7 +222,7 @@ void VideoPlate::processbuffer(const string &name, int fps, size_t start, size_t
 	//цикл по кадрам
 	for (int i = 0; i < frames.size(); i++)
 	{
-		vector<FramePlate> &candidates = platesets[matches.at(i)];
+		vector<FramePlate> &candidates = (matches.find(i) != matches.end()) ?  platesets[matches.at(i)] : vector<FramePlate>();
 		map<int, FramePlate> plates;
 
 		//цикл по обнаруженным номерам в кадре

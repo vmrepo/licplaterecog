@@ -54,43 +54,45 @@ void RecogPlate::recog(const vector<Mat> &imgs, vector<vector<FramePlate> > &pla
 	vector<pair<int, Mat> > forocr;
 	vector<OcrType> ocrtypes;
 	bool single = true;
+	int j = 0;
 	for (int i = 0; i < foroptions.size(); i++)
 	{
+		OcrType ocrtype;
+
 		switch (options[i].region)
 		{
 			case by:
-				forocr.push_back(options[i].lines > 1 ? pair<int, Mat>(foroptions[i].first, splitlines(foroptions[i].second, options[i].lines)) : foroptions[i]);
-				ocrtypes.push_back(BY);
+				ocrtype = BY;
 				break;
 
 			case eu:
-				forocr.push_back(options[i].lines > 1 ? pair<int, Mat>(foroptions[i].first, splitlines(foroptions[i].second, options[i].lines)) : foroptions[i]);
-				ocrtypes.push_back(EU);
+				ocrtype = EU;
 				break;
 
 			case kz:
-				forocr.push_back(options[i].lines > 1 ? pair<int, Mat>(foroptions[i].first, splitlines(foroptions[i].second, options[i].lines)) : foroptions[i]);
-				ocrtypes.push_back(KZ);
+				ocrtype = KZ;
 				break;
 
 			case ru:
 			case dnr:
 			case lnr:
-				forocr.push_back(options[i].lines > 1 ? pair<int, Mat>(foroptions[i].first, splitlines(foroptions[i].second, options[i].lines)) : foroptions[i]);
-				ocrtypes.push_back(RU);
+				ocrtype = RU;
 				break;
 
 			case ua2004:
 			case ua2015:
-				forocr.push_back(options[i].lines > 1 ? pair<int, Mat>(foroptions[i].first, splitlines(foroptions[i].second, options[i].lines)) : foroptions[i]);
-				ocrtypes.push_back(UA);
+				ocrtype = UA;
 				break;
+
+			default:
+				continue;
 		}
 
-		if (i != 0 && ocrtypes[i-1] != ocrtypes[i])
-		{
+		forocr.push_back( options[i].lines > 1 ? pair<int, Mat>( foroptions[i].first, splitlines( foroptions[i].second, options[i].lines ) ) : foroptions[i] );
+		ocrtypes.push_back(ocrtype);
+		if( j != 0 && ocrtypes[j - 1] != ocrtypes[j] )
 			single = false;
-		}
+		j++;
 	}
 
 	vector<string> texts;
@@ -101,7 +103,7 @@ void RecogPlate::recog(const vector<Mat> &imgs, vector<vector<FramePlate> > &pla
 		}
 		else
 		{
-			//этот случай предполагается редким
+			//этот случай предполагается редким, но из-за ошибок классификации - todo лучше нарезать пакеты
 			for (int i = 0; i < forocr.size(); i++)
 			{
 				vector<pair<int, Mat> > forocr_;

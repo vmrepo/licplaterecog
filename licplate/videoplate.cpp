@@ -149,15 +149,16 @@ void VideoPlate::process(const string &videosource)
 	{
 		if (s_interpolation || framecount % framestep == 0)
 		{
+			Mat frame_;
+			frame.copyTo(frame_);
+
 			if (!s_interpolation || framecount % frameskip == 0)
 			{
-				recogs.push_back(frame);
+				recogs.push_back(frame_);
 				matches[i] = j;
 				j++;
 			}
 
-			Mat frame_;
-			frame.copyTo(frame_);
 			frames.push_back(frame_);
 			i++;
 

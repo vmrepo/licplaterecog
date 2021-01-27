@@ -38,40 +38,45 @@ struct StatusPlate
 	Mat image;//для startframe
 	size_t startframe;//включительно
 	size_t lastframe;//включительно
+	Rect startrect;
 	Rect lastrect;
 	string lastlicplate;
 	size_t missedframes;
-	vector<pair<string, int> > licplates;
+	vector<string> licplates;
+	vector<OcrType> ocrtypes;
+	vector<int> counts;
 	vector<SimpleKalmanFilter> filters;
 	//отыскивается самый уверенный номер
-	string get()
+	pair<string, OcrType> get()
 	{
 		if (licplates.size() == 0)
 		{
-			return "";
+			return pair<string, OcrType>("", OcrType(0));
 		}
 		int idx = 0;
 		for (int i = 0; i < licplates.size(); i++)
 		{
-			if (licplates[i].second > licplates[idx].second)
+			if (counts[i] > counts[idx])
 			{
 				idx = i;
 			}
 		}
-		return licplates[idx].first;
+		return pair<string, OcrType>(licplates[idx], ocrtypes[idx]);
 	}
 	//добавляется новый номер, или инкрементируется для такого, если есть
-	void append(const string &licplate)
+	void append(const string &licplate, OcrType ocrtype)
 	{
 		for (int i = 0; i < licplates.size(); i++)
 		{
-			if (licplates[i].first == licplate)
+			if (licplates[i] == licplate)
 			{
-				licplates[i].second++;
+				counts[i]++;
 				return;
 			}
 		}
-		licplates.push_back(pair<string, int>(licplate, 1));
+		licplates.push_back(licplate);
+		ocrtypes.push_back(ocrtype);
+		counts.push_back(1);
 	}
 };
 

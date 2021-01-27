@@ -58,7 +58,7 @@ void ImagePlate::process(const vector<string> &filenames, const vector<string> &
 		{
 			for (int j = 0; j < plates.size(); j++)
 			{
-				printf("%s; %d, %d, %d, %d;\n", plates[j].licplate.c_str(), plates[j].rect.x, plates[j].rect.y, plates[j].rect.width, plates[j].rect.height);
+				printf("%s; %s; %d, %d, %d, %d;\n", plates[j].licplate.c_str(), OcrNames[plates[j].ocrtype].c_str(), plates[j].rect.x, plates[j].rect.y, plates[j].rect.width, plates[j].rect.height);
 			}
 		}
 		else
@@ -74,7 +74,7 @@ void ImagePlate::process(const vector<string> &filenames, const vector<string> &
 			{
 				Scalar red = Scalar(0, 0, 255);
 				rectangle(mat, plates[j].rect, red);
-				putText(mat, plates[j].licplate, plates[j].rect.tl(), FONT_HERSHEY_DUPLEX, 0.8, red);
+				putText(mat, plates[j].licplate + " " + OcrNames[plates[j].ocrtype], plates[j].rect.tl(), FONT_HERSHEY_DUPLEX, 0.8, red);
 			}
 			imwrite(outnames[i], mat);
 		}

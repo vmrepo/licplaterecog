@@ -22,7 +22,15 @@ enum OcrType {
 	UA
 };
 
-const static string OcrModels[] = { 
+const static string OcrNames[] = { 
+	"BY",
+	"EU",
+	"KZ",
+	"RU",
+	"UA"
+};
+
+const static string OcrModels[] = {
 	"ocrby",
 	"ocreu",
 	"ocrkz",

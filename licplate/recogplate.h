@@ -19,14 +19,16 @@ struct FramePlate
 {
 	Rect rect;
 	string licplate;
+	OcrType ocrtype;
 
 	FramePlate() {}
-	FramePlate(const Rect &rect_, const string &licplate_) : rect(rect_), licplate(licplate_) {}
-	FramePlate( const FramePlate& frameplate ) : rect( frameplate.rect ), licplate( frameplate.licplate ) {}
-	FramePlate& operator=( const FramePlate& frameplate )
+	FramePlate(const Rect &rect_, const string &licplate_, const OcrType &ocrtype_) : rect(rect_), licplate(licplate_), ocrtype(ocrtype_) {}
+	FramePlate(const FramePlate& frameplate) : rect(frameplate.rect), licplate(frameplate.licplate), ocrtype(frameplate.ocrtype) {}
+	FramePlate& operator=(const FramePlate& frameplate)
 	{
 		rect = frameplate.rect;
 		licplate = frameplate.licplate;
+		ocrtype = frameplate.ocrtype;
 		return *this; 
 	}
 };

@@ -118,7 +118,7 @@ void RecogPlate::recog(const vector<Mat> &imgs, vector<vector<FramePlate> > &pla
 	for (int i = 0; i < forocr.size(); i++)
 	{
 		int id = forocr[i].first;
-		platesets[matches[id]].push_back(FramePlate(rects[id], texts[i]));
+		platesets[matches[id]].push_back(FramePlate(rects[id], texts[i], ocrtypes[i]));
 	}
 }
 

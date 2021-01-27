@@ -193,8 +193,9 @@ void VideoPlate::process(const string &videosource)
 		if ((*it).second.lastframe - (*it).second.startframe + 1 >= s_neededframes)
 		{
 			char filename[128];
-			sprintf(filename, "%d_%s.jpg", (*it).first, (*it).second.get().c_str());
-			log("licplate: %s; startframe: %zd[%s]; endframe: %zd[%s], %s\n", (*it).second.get().c_str(),
+			sprintf(filename, "%d_%s_%s.jpg", (*it).first, (*it).second.get().first.c_str(), OcrNames[(*it).second.get().second].c_str());
+			log( "licplate: %s; type %s; startframe: %zd[%s]; endframe: %zd[%s], %s\n",
+				(*it).second.get().first.c_str(), OcrNames[(*it).second.get().second].c_str(),
 				(*it).second.startframe, timecode((*it).second.startframe, fps).c_str(),
 				(*it).second.lastframe, timecode((*it).second.lastframe, fps).c_str(), filename);
 			imwrite(s_imagepath + "/" + filename, (*it).second.image);
@@ -253,6 +254,7 @@ void VideoPlate::processbuffer(const string &name, int fps, size_t start, size_t
 				status[plateid] = StatusPlate();
 				frames[i].copyTo(status[plateid].image);
 				status[plateid].startframe = start + i * step;
+				status[plateid].startrect = plate.rect;
 
 				if (s_kalman)
 				{
@@ -272,7 +274,8 @@ void VideoPlate::processbuffer(const string &name, int fps, size_t start, size_t
 				{
 					vectplates[k][plateid] = FramePlate();
 					vectplates[k][plateid].rect = status[plateid].lastrect;
-					vectplates[k][plateid].licplate = status[plateid].get();
+					vectplates[k][plateid].licplate = status[plateid].get().first;
+					vectplates[k][plateid].ocrtype = status[plateid].get().second;
 				}
 			}
 
@@ -290,13 +293,14 @@ void VideoPlate::processbuffer(const string &name, int fps, size_t start, size_t
 			status[plateid].lastrect = plate.rect;
 			status[plateid].lastlicplate = plate.licplate;
 			status[plateid].missedframes = 0;
-			status[plateid].append(plate.licplate);
+			status[plateid].append(plate.licplate, plate.ocrtype);
 
 			//инфа об ограничивающих боксах номеров для кадра
 			if (status[plateid].lastframe - status[plateid].startframe + 1 >= s_neededframes)
 			{
 				plates[plateid] = plate;
-				plates[plateid].licplate = status[plateid].get();
+				plates[plateid].licplate = status[plateid].get().first;
+				plates[plateid].ocrtype = status[plateid].get().second;
 			}
 		}
 
@@ -313,8 +317,9 @@ void VideoPlate::processbuffer(const string &name, int fps, size_t start, size_t
 				if ((*it).second.lastframe - (*it).second.startframe + 1 >= s_neededframes)
 				{
 					char filename[128];
-					sprintf(filename, "%d_%s.jpg", (*it).first, (*it).second.get().c_str());
-					log("licplate: %s; startframe: %zd[%s]; endframe: %zd[%s], %s\n", (*it).second.get().c_str(),
+					sprintf(filename, "%d_%s_%s.jpg", (*it).first, (*it).second.get().first.c_str(), OcrNames[(*it).second.get().second].c_str());
+					log("licplate: %s; type: %s; startframe: %zd[%s]; endframe: %zd[%s], %s\n", 
+						(*it).second.get().first.c_str(), OcrNames[(*it).second.get().second].c_str(),
 						(*it).second.startframe, timecode((*it).second.startframe, fps).c_str(),
 						(*it).second.lastframe, timecode((*it).second.lastframe, fps).c_str(), filename);
 					imwrite(s_imagepath + "/" + filename, (*it).second.image);
@@ -342,7 +347,10 @@ void VideoPlate::processbuffer(const string &name, int fps, size_t start, size_t
 			{
 				Scalar red = Scalar(0, 0, 255);
 				rectangle(frames[i], plates[j].rect, red);
-				putText(frames[i], plates[j].licplate, plates[j].rect.tl(), FONT_HERSHEY_DUPLEX, 0.8, red);
+				if (plates[j].licplate != "")//это условие по-видимомоу связано с ошибкой рамка без номера по идее не должна быть (без этого условия падает из-за того что ocrtype не определён)
+				{
+					putText(frames[i], plates[j].licplate + " " + OcrNames[plates[j].ocrtype], plates[j].rect.tl(), FONT_HERSHEY_DUPLEX, 0.8, red);
+				}
 			}
 
 			imshow(name, frames[i]);

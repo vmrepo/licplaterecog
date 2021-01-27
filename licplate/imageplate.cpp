@@ -12,6 +12,38 @@
 
 char* basename(char* path);
 
+string ImagePlate::s_logfile = "";
+
+void ImagePlate::log(const char* format, ...)
+{
+	if (s_logfile != "")
+	{
+		FILE *f = fopen(s_logfile.c_str(), "a");
+		if (f != nullptr)
+		{
+			va_list arglist;
+			va_start(arglist, format);
+			vfprintf(f, format, arglist);
+			va_end(arglist);
+			fclose(f);
+		}
+		else
+		{
+			va_list arglist;
+			va_start(arglist, format);
+			vprintf(format, arglist);
+			va_end(arglist);
+		}
+	}
+	else
+	{
+		va_list arglist;
+		va_start(arglist, format);
+		vprintf(format, arglist);
+		va_end(arglist);
+	}
+}
+
 void ImagePlate::process(const vector<string> &filenames, const vector<string> &outnames)
 {
 	vector<string> errors;
@@ -19,19 +51,25 @@ void ImagePlate::process(const vector<string> &filenames, const vector<string> &
 
 	for (int i = 0; i < filenames.size(); i++)
 	{
-		string error;
 		ifstream ifile(filenames[i].c_str());
 
 		if (!(bool)ifile)
 		{
-			error = "not opened";
-		} 
-		else
-		{
-			images.push_back(imread(filenames[i]));
+			errors.push_back("not opened");
+			continue;
 		}
 
-		errors.push_back(error);
+		Mat image = imread(filenames[i]);
+
+		if (!(image.cols > 0 && image.rows > 0))
+		{
+			errors.push_back("bad image");
+			continue;
+		}
+
+		images.push_back(image);
+
+		errors.push_back("");
 	}
 
 	vector<vector<FramePlate> > platesets;
@@ -41,15 +79,13 @@ void ImagePlate::process(const vector<string> &filenames, const vector<string> &
 
 	for (int i = 0; i < filenames.size(); i++)
 	{
-		printf("image: %s\n", filenames[i].c_str());
+		log("image: %s\n", filenames[i].c_str());
 
 		if (errors[i].size())
 		{
-			printf("error: %s\n\n", errors[i].c_str());
+			log("error: %s\n", errors[i].c_str());
 			continue;
 		}
-
-		printf("licplates:\n");
 
 		Mat &image = images[k];
 		vector<FramePlate> &plates = platesets[k];
@@ -58,12 +94,8 @@ void ImagePlate::process(const vector<string> &filenames, const vector<string> &
 		{
 			for (int j = 0; j < plates.size(); j++)
 			{
-				printf("%s; %s; %d, %d, %d, %d;\n", plates[j].licplate.c_str(), OcrNames[plates[j].ocrtype].c_str(), plates[j].rect.x, plates[j].rect.y, plates[j].rect.width, plates[j].rect.height);
+				log("%s; %s; %d, %d, %d, %d;\n", plates[j].licplate.c_str(), OcrNames[plates[j].ocrtype].c_str(), plates[j].rect.x, plates[j].rect.y, plates[j].rect.width, plates[j].rect.height);
 			}
-		}
-		else
-		{
-			printf("\n");
 		}
 
 		if (i < outnames.size())
@@ -78,8 +110,6 @@ void ImagePlate::process(const vector<string> &filenames, const vector<string> &
 			}
 			imwrite(outnames[i], mat);
 		}
-
-		printf("\n");
 
 		k++;
 	}

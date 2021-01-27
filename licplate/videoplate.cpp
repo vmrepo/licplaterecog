@@ -107,6 +107,32 @@ void VideoPlate::log(const char* format, ...)
 	}
 }
 
+int VideoPlate::restoremaxplateid()
+{
+	int id = 0;
+	string fn = s_imagepath + "/" + "maxplateid";
+	FILE *f = fopen(fn.c_str(), "r");
+	if (f != nullptr)
+	{
+		char data[32];
+		fread(data, 32, 1, f);
+		id = atoi(data);
+		fclose(f);
+	}
+	return id;
+}
+
+void VideoPlate::savemaxplateid(int id)
+{
+	string fn = s_imagepath + "/" + "maxplateid";
+	FILE *f = fopen(fn.c_str(), "w");
+	if (f != nullptr)
+	{
+		fprintf(f, "%d", id);
+		fclose(f);
+	}
+}
+
 void VideoPlate::process(const string &videosource)
 {
 	VideoCapture cap;
@@ -251,6 +277,7 @@ void VideoPlate::processbuffer(const string &name, int fps, size_t start, size_t
 			{
 				//не нашли, значит новый номер
 				plateid = ++s_maxplateid;
+				savemaxplateid(s_maxplateid);
 				status[plateid] = StatusPlate();
 				frames[i].copyTo(status[plateid].image);
 				status[plateid].startframe = start + i * step;

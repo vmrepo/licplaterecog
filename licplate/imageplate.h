@@ -13,6 +13,8 @@ using namespace cv;
 
 struct ImagePlate
 {
+	static void log(const char* format, ...);
+
 	static void process(const vector<string> &filenames, const vector<string> &outnames);
 
 	ImagePlate();
@@ -20,6 +22,8 @@ struct ImagePlate
 	ImagePlate& operator=(const ImagePlate& imageplate);
 
 	virtual ~ImagePlate();
+
+	static string s_logfile;
 };
 
 #endif // __IMAGEPLATE_H__

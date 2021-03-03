@@ -250,7 +250,8 @@ void VideoPlate::processbuffer(const string &name, int fps, size_t start, size_t
 	//цикл по кадрам
 	for (int i = 0; i < frames.size(); i++)
 	{
-		vector<FramePlate> &candidates = (matches.find(i) != matches.end()) ?  platesets[matches.at(i)] : vector<FramePlate>();
+		vector<FramePlate> candidates_ = vector<FramePlate>();
+		vector<FramePlate> &candidates = (matches.find(i) != matches.end()) ?  platesets[matches.at(i)] : candidates_;
 		map<int, FramePlate> plates;
 
 		//цикл по обнаруженным номерам в кадре
@@ -368,19 +369,22 @@ void VideoPlate::processbuffer(const string &name, int fps, size_t start, size_t
 
 		for (int i = 0; i < frames.size(); i++)
 		{
+			Mat mat;
+			frames[i].copyTo(mat);
+
 			map<int, FramePlate> &plates = vectplates[i];
 
 			for (int j = 0; j < plates.size(); j++)
 			{
 				Scalar red = Scalar(0, 0, 255);
-				rectangle(frames[i], plates[j].rect, red);
+				rectangle(mat, plates[j].rect, red);
 				if (plates[j].licplate != "")//это условие по-видимомоу связано с ошибкой рамка без номера по идее не должна быть (без этого условия падает из-за того что ocrtype не определён)
 				{
-					putText(frames[i], plates[j].licplate + " " + OcrNames[plates[j].ocrtype], plates[j].rect.tl(), FONT_HERSHEY_DUPLEX, 0.8, red);
+					putText(mat, plates[j].licplate + " " + OcrNames[plates[j].ocrtype], plates[j].rect.tl(), FONT_HERSHEY_DUPLEX, 0.8, red);
 				}
 			}
 
-			imshow(name, frames[i]);
+			imshow(name, mat);
 
 			int delay = 1000 / fps;
 			int duration = (int)chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - time).count();

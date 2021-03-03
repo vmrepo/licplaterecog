@@ -1,6 +1,6 @@
 CC:=g++
-CFLAGS:=-I/usr/local/include -I../tensorflow/include -L/usr/local/lib -L../tensorflow/lib
-LIBRARIES:=-lopencv_core -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui -lopencv_objdetect -lopencv_video -lopencv_videoio -ltensorflow
+CFLAGS:=-I/usr/local/include/opencv4 -I../tensorflow/include -L/usr/local/lib -L../tensorflow/lib
+LIBRARIES:=-lopencv_core -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui -lopencv_video -lopencv_videoio -ltensorflow
 
 all: licplate
 

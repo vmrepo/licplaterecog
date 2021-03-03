@@ -13,6 +13,10 @@ licplate.exe -image pic1.jpg pic2.jpg -out out/pic1.jpg out/pic2.jpg
 Пример команды распознавания видео:
 licplate.exe -video movie.avi -showon -logfile licplate.log -framepath ./frames
 
+Примеры команд для linux (переменная QT_X11_NO_MITSHM понадобится для графического окна opencv):
+QT_X11_NO_MITSHM=1 LD_LIBRARY_PATH=../../tensorflow/lib ../licplate -video 001.avi -logfile ./log.txt -framepath ./frames -showon -kalmanoff
+LD_LIBRARY_PATH=../../tensorflow/lib ../licplate -image 001.jpg 003.jpg -out ./frames/001_out.jpg ./frames/003_out.jpg
+
 Необязательные ключи для видео:
 
 -frameskip - количество пропускаемых кадров для распознаний, по умолчанию - 5
